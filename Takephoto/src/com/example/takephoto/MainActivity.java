@@ -1,10 +1,18 @@
 package com.example.takephoto;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import org.xml.sax.helpers.ParserFactory;
+
+import com.parse.Parse;
+import com.parse.ParseFile;
+import com.parse.SaveCallback;
+import com.parse.ParseException;
 
 import android.media.Image;
 import android.os.Bundle;
@@ -26,6 +34,9 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		Parse.initialize(this,  "nlIQe4IIlQBDWDgk3k64XyFsQEzI2EYnuOXtsDr1", "f5Wa8GRUoApMlfKVE9KxjrjuCvjYc2CJg6X0MXoP");
+		
 		setContentView(R.layout.activity_main);
 		imageview = (ImageView) findViewById(R.id.imageView1);
 		
@@ -76,10 +87,27 @@ public class MainActivity extends Activity {
 		
 		try {
 			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(imageFile));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			
 			bitmap.compress(Bitmap.CompressFormat.PNG, 90, bos);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, baos);
+			
 			bos.flush();
 			bos.close();
+			baos.flush();
+			baos.close();
 			Log.d("debug", "filePath=" + imageFile.getAbsolutePath());
+			
+			final ParseFile file = new ParseFile("photo.png", baos.toByteArray());
+			file.saveInBackground(new SaveCallback() {
+				@Override
+				public void done(ParseException e) {
+					Log.d("debug", file.getUrl());
+				}
+				
+				});
+				Log.d("debug", "filePath=" + imageFile.getAbsolutePath());
+		
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

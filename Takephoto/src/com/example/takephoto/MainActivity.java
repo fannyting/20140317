@@ -1,17 +1,27 @@
 package com.example.takephoto;
 
+import android.media.Image;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 public class MainActivity extends Activity {
 
+	private  ImageView imageview;
+	private static final int REQUEST_CODE_TAKE_PHOTO = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		imageview = (ImageView) findViewById(R.id.imageView1);
+		
 		}
 
 	@Override
@@ -21,13 +31,30 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.action_settings:
 			Log.d("debug", "settings");
-			break;
+			return true;
 		case R.id.action_takephoto:
-			Log.d("debug", "takephoto");
-			break;
+			Intent intent = new Intent();
+			intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+			startActivityForResult(intent, REQUEST_CODE_TAKE_PHOTO);			
+			//Log.d("debug", "takephoto");
+			return true;
 		}
 		
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (requestCode == REQUEST_CODE_TAKE_PHOTO) {
+			if (resultCode == RESULT_OK){
+				Bitmap image = (Bitmap) data.getExtras().get("data");
+				imageview.setImageBitmap(image);
+			}
+		}
+		
 	}
 	
 	@Override
